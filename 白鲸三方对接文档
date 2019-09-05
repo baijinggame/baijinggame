@@ -1,0 +1,174 @@
+#<center>白鲸游戏开放平台
+
+### <center>第三方接入文档
+
+**文档历史**
+
+| **版本** | **日期** | **作者** | **更新描述** |
+| --- | --- | --- | --- |
+| V1.0 | 2019-06-06 | Julian | 创建文档 |
+| V1.1 | 2019-07-10 | Julian | 加入广告APK下载的说明 |
+| V1.2 | 2019-08-12 | Julian | 授权链接加入参数download |
+| V1.3 | 2019-09-01 | Julian | 新增授权链接参数 |
+
+**平台简介**
+
+白鲸游戏开放平台（以下简称"白鲸"）针对互联网广大中小媒体流量变现难的痛点，开创联合变现全新形式，兼顾媒体收益、小游戏开发者收益、广告转化及最终用户体验，实现媒体、游戏开发者和广告主多方共赢。
+
+白鲸区别于传统流量变现平台拥有四大核心竞争力：
+
+1. （1）媒体和小游戏接入简单，无SDK，仅H5和API接入即可；
+2. （2）现金激励，结合休闲娱乐场景为媒体提升用户留存和在线时长；
+3. （3）小游戏零成本投放，为小微游戏开发团队提供变现和曝光能力；
+4. （4）智能对接海量头部广告资源，为媒体和小游戏开发者创造最大收益；
+
+**媒体接入**
+
+1. **开通后台**
+
+媒体首先需要联系白鲸运营专员申请运营后台账号（暂不接受注册，请在登录后自行修改密码），媒体运营人员可以通过登录后台获取技术支持，下载相关文档、查询日常运营数据和进行结算开票（前期台尚未上线，请联系业务对接人）。
+
+账号申请：请添加微信号，备注白鲸游戏 xxxxx
+
+后台地址：[https://www.baijinggame.com](https://www.baijinggame.com)
+
+1. **接入准备**
+
+媒体在进行技术对接前需要登录运营后台，前往安全中心获得下列授权参数：
+
+| **参数名** | **类型** | **说明** |
+| --- | --- | --- |
+| channel | String | 白鲸分配给媒体的渠道号 |
+| key | String | 白鲸分配的密钥（请妥善保管） |
+
+1. **登录授权**
+
+为保存用户游戏及金币数据信息，媒体APP需与白鲸进行账号互通，媒体需将APP的用户信息传给白鲸，进行登录授权。具体交互流程分为四步。
+
+1. 准备用户信息
+2. 生成签名校验
+3. 选择启动页面
+4. 请求授权链接
+
+注意：需要特别说明的是启动白鲸的任何页面，都不是直接在APP打开对应的白鲸链接，而是打开经过参数拼接后的授权链接，通过参数的配置来跳转目标页从而打开白鲸的各个页面。
+
+白鲸授权地址：
+
+生产环境        [https://api.baijinggame.com](https://www.baijinggame.com)
+
+测试环境        [https://dev.baijinggame.com](https://dev.baijinggame.com)
+
+下面针对以上步骤做详细说明。
+
+1. a） **准备用户信息**
+
+媒体需要提供下列APP用户信息以生成校验签名。
+
+|   | **参数名** | **类型** | **说明** |
+| --- | --- | --- | --- |
+| 1 | channel | String（必填） | 媒体应用渠道号，由白鲸分配，如"wechat" |
+| 2 | id | String（必填） | 用户在媒体的唯一标示，用于确保渠道用户的唯一性 |
+| 3 | time | Int（必填） | 当前服务器的时间戳，GMT+8，单位秒，如"1543303216" |
+| 4 | nick | String（必填） | 用户在媒体的登记昵称，如无昵称可填写"" |
+| 5 | sex | Int（必填） | 用户在媒体的登记性别 0:未知,1:男,2:女 |
+| 6 | avatar | String（必填） | 用户在媒体的登记头像，如无头像可填写"" |
+| 7 | mobile | String（必填） | 用户在媒体的登记手机号，如无手机号可填写"" |
+| 8 | position | String（必填） | 用户在媒体的登记地域，省/直辖市，如无地域可填写"" |
+| 9 | appPackage | String（必填） | 媒体应用包名，如"com.tencent.mm" |
+| 10 | appVersion | String（必填） | 媒体应用版本号，如"7.0.5" |
+| 11 | imei | String（必填） | 用户设备的IMEI，IOS系统为IDFV |
+
+注意：媒体需要用户授权以获得下列两项安卓权限：获取手机信息和读取位置信息。
+
+1. b） **生成校验签名**
+
+签名信息的生成规则如下：
+
+1. （1）将参数以channel、id、time、nick、sex、avatar、mobile、position、appPackage、appVersion、imei的顺序，按照key=value，用'&amp;'进行拼接，得到参数拼接字符串StringA；
+
+| String A = "channel=wechat&amp;id=10time=1543303216&amp;nick=zs&amp;sex=1&amp;avatar=&amp;mobile=&amp;position=&amp;appPackage=com.tencent.mm&amp;appVersion=7.0.5&amp;imei=xxxxxxxxxxx"; |
+| --- |
+
+1. （2）将key（白鲸分配的密钥）直接拼接在StringA后面，得到验签前字符串StringB；
+
+| String Key = 52846934;String B = "channel=wechat&amp;id=10time=1543303216&amp;nick=zs&amp;sex=1&amp;avatar=&amp;mobile=&amp;position=52846934"; |
+| --- |
+
+1. （3）最后，将StringB进行md5加密计算，得到sign=md5(StringB).toLocaleLowerCase()；
+
+| String sign = md5(String B).toLocaleLowerCase(); |
+| --- |
+
+1. c） **选择启动页面**
+
+白鲸提供媒体各种启动参数，保证媒体可以通过参数配置灵活启动白鲸页面，并引导用户直接进入特定的小游戏。参数gid如果未指定则默认打开白鲸游戏中心首页。
+
+|   | **参数名** | **类型** | **说明** |
+| --- | --- | --- | --- |
+| 1 | gid | String | 白鲸已接入的小游戏id，通过后台获得。 |
+
+1. d） **请求授权链接**
+
+在生成签名和确认启动页后，媒体需要按照键值对的形式将上述参数和签名信息附加在白鲸授权地址后。
+
+其中，标记为红色的字段将影响媒体授权能否通过，字段无值可填写""，如nick=""；标记为绿色的字段将直接影响广告能否成功下发，请媒体务必重点关注。
+
+|   | **参数名** | **类型** | **说明** |
+| --- | --- | --- | --- |
+| 1 | channel | String（必填） | 媒体应用渠道号，由白鲸分配，如"wechat" |
+| 2 | id | String（必填） | 用户在媒体的唯一标示，用于确保渠道用户的唯一性 |
+| 3 | time | Int（必填） | 当前服务器的时间戳，单位秒，如"1543303216" |
+| 4 | nick | String（必填） | 用户在媒体的登记昵称，如无昵称可填写"" |
+| 5 | sex | Int（必填） | 用户在媒体的登记性别 0:未知,1:男,2:女 |
+| 6 | avatar | String（必填） | 用户在媒体的登记头像，如无头像可填写"" |
+| 7 | mobile | String（必填） | 用户在媒体的登记手机号，如无手机号可填写"" |
+| 8 | position | String（必填） | 用户在媒体的登记地域，省/直辖市，如无地域可填写"" |
+| 9 | sign | String（必填） | 签名信息，具体签名校验规则见下文说明 |
+| 10 | donwload | String（必填） | 媒体提供的原生下载方法名，用于第三方H5页面调用 |
+| 11 | appPackage | String（必填） | 媒体应用包名，如"com.tencent.mm" |
+| 12 | appVersion | String（必填） | 媒体应用版本号，如"7.0.5" |
+| 13 | platform | String（必填） | 用户设备的平台1:Android,2:IOS,3:PC,4:WAP |
+| 14 | os | String（必填） | 用户设备的系统，如"ColorOS" |
+| 15 | osVersion | String（必填） | 用户设备的系统版本，如"V5.2.1" |
+| 16 | imei | String（必填） | 用户设备的IMEI，IOS系统为IDFV |
+| 17 | deviceId | String（必填） | 用户设备的ID，IOS系统为IDFA |
+| 18 | network | Int（必填） | 用户设备的网络连接类型0:未知,1:WIFI,2:2G,3:3G,4:4G,5:5G |
+| 19 | ip | String（必填） | 用户设备的真实IP地址,如"10.0.9.40" |
+| 20 | mac | String（必填） | 用户设备的网卡MAC地址，如"d4:67:d3:fc:aa:f1" |
+| 21 | vendor | String（必填） | 用户设备的厂商名称，如"OPPO" |
+| 22 | model | String（必填） | 用户设备的型号，如"OPPO A83" |
+| 23 | operater | String（必填） | 用户设备的运营商代码，如"46000" |
+| 24 | userAgent | String（必填） | 用户设备的代理，如"CECT A706 CECT A706" |
+| 25 | screenWidth | Int（必填） | 用户设备的屏幕宽度（像素），如"480" |
+| 26 | screenHeight | Int（必填） | 用户设备的屏幕高度（像素），如"800" |
+| 27 | longitude | String（必填） | 用户设备的定位（经度），如"121.5122" |
+| 28 | [latitude](https://cn.bing.com/dict/search?q=latitude&amp;FORM=BDVSP6&amp;mkt=zh-cn) | String（必填） | 用户设备的定位（纬度），如"31.3013" |
+| 29 | gid | String（可选） | 白鲸已接入的小游戏id，通过后台获得。 |
+
+媒体在完成授权链接拼接后，即可在APP的WebView中打开白鲸授权链接。该链接的有效时间为5分钟，超时请求将拒绝访问。
+
+完整的白鲸授权地址示例如下：
+
+[https://www.baijinggame.com/auth?channel=test&amp;id=100&amp;time=1543303216&amp;nick=""&amp;sex=0&amp;avatar=""&amp;mobile=13888888888&amp;position=""&amp;sign=478be490e49442d7&amp;appPackage=com.tencent.mm&amp;appVersion=7.0.5&amp;imei=6f494539-d812-4c5e-89c6-a89298f627c4&amp;ip=10.0.9.40&amp;gid=023](https://www.baijinggame.com/auth?channel=test&amp;id=100&amp;time=1543303216&amp;nick=%5C)
+
+1. **Q&amp;A**
+
+1. 所有白鲸链接不能通过WebView直接打开，必须经过授权链接校验通过后跳转。
+2. 目前仅支持媒体的安卓应用接入，微信小程序及IOS将在后续版本中得到支持。
+3. 关于授权链接中的download参数的说明。
+
+由于白鲸需要对接广告主并下载APK，而单纯的H5 API接入无法处理，故媒体必须使用JSBridge框架，并提供已有的下载方法名以供白鲸H5页面调用。如未实现下载方法，可以参考下列downAPK安卓代码（新增downAPK方法需要媒体发布原生版本）。
+
+注意：是否提供APK下载方法将直接影响广告下发，请媒体务必重点关注。
+
+| registerHandler("downAPK",object : WVJBHandler{    override fun request(data: Any?, callback: WVJBResponseCallback?) {        Log.d("TAG","${data.toString()}")        Toast.makeText(webView.context,"开始下载", Toast.LENGTH\_LONG).show()        var thread = Thread(Runnable {            var apkEntity = gson.fromJson\<DownAPKEntity\&(data.toString(), DownAPKEntity::class.java)            NotificationUtils.showProgressNotifi(webView.context , 0)            ActionHelper.downFile( "${apkEntity.apkUrl}" , object : DownCallback {                override fun onProgress(currentLength: String?) {                    NotificationUtils.notifyProgress( currentLength!!.toInt())                }                override fun onFinish(file: File?) {                    NotificationUtils.finishProgress()                    ActionHelper.installJump(file!!, webView.context)                    Log.d("TAG","onFinish${file!!.absoluteFile}")                }                override fun onFailure() {}            })        })        thread.start()    }}) |
+| --- |
+
+1. 若在对接过程中出现下列问题，请联系我们。
+
+- 签名校验失败
+- 下发的广告位置错乱
+
+**小游戏开发者接入**
+
+暂未开放，敬请期待
